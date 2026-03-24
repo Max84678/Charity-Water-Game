@@ -9,7 +9,7 @@ const REINC_THRESHOLD = 1e12; // 1 trillion litres
 
 const CLICKER_TYPES = [
   { id:'bucket',    name:'Bucket Brigade',  emoji:'🪣', desc:'Villagers carry water by hand.',           baseCost:10,      baseLps:0.1   },
-  { id:'handpump',  name:'Hand Pump',        emoji:'💧', desc:'A simple mechanical hand pump.',           baseCost:100,     baseLps:0.5   },
+  { id:'handpump',  name:'Hand Pump',        emoji:'💧', desc:'A simple mechanical hand pump.',           baseCost:100,     baseLps:1.5   },
   { id:'village',   name:'Village Well',     emoji:'🏘️', desc:'A shared well serving the community.',    baseCost:1100,    baseLps:3     },
   { id:'solar',     name:'Solar Pump',       emoji:'☀️', desc:'Solar-powered water extraction.',         baseCost:12000,   baseLps:16    },
   { id:'borehole',  name:'Borehole',         emoji:'⛏️', desc:'Deep drilled underground aquifer.',       baseCost:130000,  baseLps:90    },
@@ -72,12 +72,20 @@ const MILESTONES = [
   { water:REINC_THRESHOLD,  icon:'⚡', msg:'1 TRILLION Liters! Reincarnation is now available — click the ⚡ button!',              triggered:false },
 ];
 
+let currentMode = normalizeGameMode(getSelectedGameMode());
+let activeBoost = null;
+let goldenDropElement = null;
+let goldenDropRemoveTimer = null;
+let goldenDropSpawnTimer = null;
+let reincWarningDismissed = false;
+
 // ─── Default / fresh game state ──────────────────────────────────
 const DEFAULT_STATE = {
   water:              0,
   totalWater:         0,   // this reincarnation cycle
   reincarnations:     0,
   reincarnationPoints:0,
+  reincarnationStoreViewedFor: 0,
   owned:              {},  // { typeId: count }
   purchasedUpgrades:  [],  // upgrade ids bought this cycle
   permanentUpgrades:  [],  // permanent upgrade ids (survive reincarnation)
@@ -94,12 +102,17 @@ function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
 
 // ─── Save / Load ─────────────────────────────────────────────────
 function saveGame() {
-  localStorage.setItem('cwgame_v1', JSON.stringify(state));
+  const saveKey = getGameSaveKey(currentMode);
+  localStorage.setItem(saveKey, JSON.stringify(state));
+  if (currentMode === 'classic') {
+    localStorage.setItem(LEGACY_SAVE_KEY, JSON.stringify(state));
+  }
 }
 
 function loadGame() {
   try {
-    const raw = localStorage.getItem('cwgame_v1');
+    let raw = localStorage.getItem(getGameSaveKey(currentMode));
+    if (!raw && currentMode === 'classic') raw = localStorage.getItem(LEGACY_SAVE_KEY);
     if (!raw) return;
     const parsed = JSON.parse(raw);
     state = Object.assign(deepClone(DEFAULT_STATE), parsed);
@@ -107,6 +120,9 @@ function loadGame() {
     CLICKER_TYPES.forEach(t => {
       if (!(t.id in state.owned)) state.owned[t.id] = 0;
     });
+    if (typeof state.reincarnationStoreViewedFor !== 'number') {
+      state.reincarnationStoreViewedFor = 0;
+    }
   } catch (e) {
     console.warn('Could not load save:', e);
   }
@@ -127,14 +143,20 @@ function fmt(n) {
 // Cost of buying `count` units starting from `owned` already held
 function costForN(typeId, owned, count) {
   const base = CLICKER_TYPES.find(t => t.id === typeId).baseCost;
+  const difficulty = getGameModeConfig(currentMode).difficulty.costMult;
   // Geometric-series sum: base × r^owned × (r^count − 1) / (r − 1)
-  return base * Math.pow(COST_MULT, owned)
+  return base * difficulty * Math.pow(COST_MULT, owned)
        * (Math.pow(COST_MULT, count) - 1) / (COST_MULT - 1);
 }
 
 function singleCost(typeId) {
   const base = CLICKER_TYPES.find(t => t.id === typeId).baseCost;
-  return base * Math.pow(COST_MULT, state.owned[typeId]);
+  return base * getGameModeConfig(currentMode).difficulty.costMult * Math.pow(COST_MULT, state.owned[typeId]);
+}
+
+function upgradeCost(upgrade) {
+  const difficulty = getGameModeConfig(currentMode).difficulty.upgradeCostMult || 1;
+  return upgrade.cost * difficulty;
 }
 
 // ─── Multiplier helpers ───────────────────────────────────────────
@@ -167,16 +189,114 @@ function permAutoMult() {
   return m;
 }
 
+function getActiveBoostMult() {
+  if (!activeBoost) return 1;
+  if (Date.now() >= activeBoost.expiresAt) {
+    activeBoost = null;
+    updateBoostIndicator();
+    return 1;
+  }
+  return activeBoost.mult;
+}
+
+function setActiveBoost(mult, durationMs) {
+  activeBoost = {
+    mult,
+    expiresAt: Date.now() + durationMs,
+    durationMs,
+  };
+  updateBoostIndicator();
+}
+
+function updateBoostIndicator() {
+  const el = document.getElementById('golden-boost');
+  if (!el) return;
+
+  if (!activeBoost) {
+    el.classList.add('hidden');
+    return;
+  }
+
+  const remaining = Math.max(0, activeBoost.expiresAt - Date.now());
+  const duration = activeBoost.durationMs || 8000;
+  const pct = Math.max(0, Math.min(100, (remaining / duration) * 100));
+
+  document.getElementById('golden-boost-label').textContent = `Golden Boost x${activeBoost.mult}`;
+  document.getElementById('golden-boost-fill').style.width = pct + '%';
+  el.classList.remove('hidden');
+}
+
+function clearGoldenDrop() {
+  if (goldenDropElement) {
+    goldenDropElement.remove();
+    goldenDropElement = null;
+  }
+  if (goldenDropRemoveTimer) {
+    clearTimeout(goldenDropRemoveTimer);
+    goldenDropRemoveTimer = null;
+  }
+}
+
+function awardGoldenDrop() {
+  const roll = Math.random();
+  if (roll < 0.6) {
+    const reward = 777;
+    state.water += reward;
+    state.totalWater += reward;
+    showMilestone('✨', `Golden Raindrop! +${fmt(reward)} L.`);
+    updateDisplay();
+    renderStore();
+    saveGame();
+    return;
+  }
+
+  const mult = roll < 0.9 ? 7 : 777;
+  setActiveBoost(mult, 8000);
+  showMilestone('🌟', `Golden Raindrop! x${mult} boost for 8 seconds.`);
+  updateDisplay();
+}
+
+function spawnGoldenRaindrop() {
+  const gameArea = document.getElementById('game-area');
+  if (!gameArea || goldenDropElement) return;
+
+  const drop = document.createElement('button');
+  drop.type = 'button';
+  drop.className = 'golden-drop';
+  drop.setAttribute('aria-label', 'Golden raindrop reward');
+  drop.textContent = '💧';
+
+  const maxLeft = Math.max(20, gameArea.clientWidth - 80);
+  const maxTop = Math.max(20, gameArea.clientHeight - 120);
+  drop.style.left = `${20 + Math.random() * (maxLeft - 20)}px`;
+  drop.style.top = `${60 + Math.random() * maxTop}px`;
+
+  drop.addEventListener('click', () => {
+    clearGoldenDrop();
+    awardGoldenDrop();
+  });
+
+  gameArea.appendChild(drop);
+  goldenDropElement = drop;
+
+  goldenDropRemoveTimer = setTimeout(() => {
+    clearGoldenDrop();
+  }, 15000);
+}
+
 function computeClickValue() {
   const { mult, bonus } = permClickMult();
-  return upgradeMultFor('click') * mult + bonus;
+  const difficulty = getGameModeConfig(currentMode).difficulty.clickMult;
+  return (upgradeMultFor('click') * mult + bonus) * difficulty * getActiveBoostMult();
 }
 
 function computeWPS() {
   const autoM = permAutoMult();
+  const difficulty = getGameModeConfig(currentMode).difficulty.productionMult;
+  const boost = getActiveBoostMult();
   return CLICKER_TYPES.reduce((sum, t) => {
     const n = state.owned[t.id];
-    return sum + (n > 0 ? t.baseLps * n * upgradeMultFor(t.id) * autoM : 0);
+    return sum + (n > 0 ? t.baseLps * n * upgradeMultFor(t.id) * autoM * difficulty * boost : 0);
   }, 0);
 }
 
@@ -197,12 +317,13 @@ function renderUpgrades() {
   }
 
   el.innerHTML = available.map(u => {
-    const canAfford = state.water >= u.cost;
+    const cost = upgradeCost(u);
+    const canAfford = state.water >= cost;
     return `<div class="upgrade-item">
       <div class="upgrade-info">
         <div class="upgrade-name">⬆️ ${u.name}</div>
         <div class="upgrade-desc">${u.desc}</div>
-        <div class="upgrade-cost">Cost: ${fmt(u.cost)} L</div>
+        <div class="upgrade-cost">Cost: ${fmt(cost)} L</div>
       </div>
       <button class="upgrade-buy-btn"
               onclick="buyUpgrade('${u.id}')"
@@ -267,8 +388,9 @@ function buyClicker(typeId) {
 function buyUpgrade(upgradeId) {
   const u = UPGRADES.find(x => x.id === upgradeId);
   if (!u || state.purchasedUpgrades.includes(upgradeId)) return;
-  if (state.water < u.cost) return;
-  state.water -= u.cost;
+  const cost = upgradeCost(u);
+  if (state.water < cost) return;
+  state.water -= cost;
   state.purchasedUpgrades.push(upgradeId);
   renderStore();
   updateDisplay();
@@ -351,24 +473,33 @@ function onWellClick(e) {
 
 // ─── Reincarnation ────────────────────────────────────────────────
 function checkReincarnateBtn() {
-  const eligible = state.totalWater >= REINC_THRESHOLD;
-  document.getElementById('reincarnate-btn').classList.toggle('hidden', !eligible);
-  if (state.reincarnations > 0) {
-    document.getElementById('reinc-store-link').classList.remove('hidden');
+  const hasRP = state.reincarnationPoints >= 1;
+  const reincBtn = document.getElementById('reincarnate-btn');
+  const lockedNote = document.getElementById('reinc-locked-note');
+  const confirmBox = document.getElementById('reinc-confirm');
+  const storeLink = document.getElementById('reinc-store-link');
+
+  reincBtn.classList.toggle('locked', !hasRP);
+  reincBtn.disabled = !hasRP;
+  lockedNote.classList.toggle('hidden', hasRP);
+  confirmBox.classList.toggle('hidden', !hasRP || reincWarningDismissed);
+  if (!hasRP) {
+    storeLink.classList.add('hidden');
+  }
+
+  if (!hasRP) {
+    reincBtn.classList.remove('hidden');
   }
 }
 
 function doReincarnate() {
   if (state.totalWater < REINC_THRESHOLD) return;
+  if (state.reincarnationPoints < 1) return;
   const rpEarned = Math.floor(state.totalWater / REINC_THRESHOLD);
-  if (!confirm(
-    `Reincarnate?\n\nYou will earn ${rpEarned} Reincarnation Point(s).\n` +
-    `All water, auto-clickers and regular upgrades will reset.\n` +
-    `Permanent upgrades and RP are kept forever.`
-  )) return;
 
   state.reincarnationPoints += rpEarned;
   state.reincarnations      += 1;
+  state.reincarnationStoreViewedFor = state.reincarnations - 1;
 
   // Apply "freeUnit" permanent upgrades before resetting
   const freeUnits = {};
@@ -415,6 +546,16 @@ function doReincarnate() {
   window.location.href = 'reincarnation.html';
 }
 
+function acceptReincarnation() {
+  reincWarningDismissed = false;
+  doReincarnate();
+}
+
+function declineReincarnation() {
+  reincWarningDismissed = true;
+  checkReincarnateBtn();
+}
+
 // ─── Display update ───────────────────────────────────────────────
 function updateDisplay() {
   const wps = computeWPS();
@@ -432,6 +573,7 @@ function updateDisplay() {
   document.getElementById('progress-text').textContent =
     fmt(state.totalWater) + ' / 1T Liters';
 
+  updateBoostIndicator();
   checkReincarnateBtn();
 }
 
@@ -440,6 +582,10 @@ function gameTick() {
   const now   = Date.now();
   const delta = (now - lastUpdate) / 1000; // seconds
   lastUpdate  = now;
+
+  if (activeBoost && now >= activeBoost.expiresAt) {
+    activeBoost = null;
+  }
 
   const wps = computeWPS();
   if (wps > 0) {
@@ -454,6 +600,11 @@ function gameTick() {
 
 // ─── Initialisation ───────────────────────────────────────────────
 function init() {
+  currentMode = setSelectedGameMode(getSelectedGameMode());
+  applyGameTheme(currentMode);
+  document.body.classList.toggle('mode-drought', currentMode === 'drought');
+  document.body.classList.toggle('mode-classic', currentMode === 'classic');
+
   loadGame();
 
   // Re-arm already-passed milestones as triggered so they don't fire again on load
@@ -465,12 +616,17 @@ function init() {
   updateDisplay();
   lastUpdate = Date.now();
 
+  updateModeButtons();
+  updateBoostIndicator();
+  clearGoldenDrop();
+
+  goldenDropSpawnTimer = setInterval(spawnGoldenRaindrop, 5 * 60 * 1000);
+  setTimeout(spawnGoldenRaindrop, 5 * 60 * 1000);
+
   // Game tick every 100 ms
   setInterval(gameTick, 100);
   // Auto-save every 10 s
   setInterval(saveGame, 10000);
-  // Refresh store affordability every 500 ms
-  setInterval(renderStore, 500);
 
   // ── Event listeners ────────────────────────────────────────────
   // Hamburger
@@ -497,6 +653,17 @@ function init() {
     btn.addEventListener('click', () => setBulk(parseInt(btn.dataset.bulk)));
   });
 
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchGameMode(btn.dataset.mode));
+  });
+
+  // Keep store interactions from bubbling up to the document close handler
+  storePanel.addEventListener('click', e => {
+    if (e.target.closest('.upgrade-buy-btn, .clicker-buy-btn, .bulk-btn, .reincarnate-btn, .reinc-store-link')) {
+      e.stopPropagation();
+    }
+  });
+
   // Milestone dismiss
   document.getElementById('milestone-close').addEventListener('click', () => {
     document.getElementById('milestone-popup').classList.add('hidden');
@@ -514,6 +681,21 @@ function init() {
       storePanel.setAttribute('aria-hidden', true);
     }
   });
+}
+
+function updateModeButtons() {
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === currentMode);
+  });
+}
+
+function switchGameMode(mode) {
+  const nextMode = normalizeGameMode(mode);
+  if (nextMode === currentMode) return;
+
+  saveGame();
+  setSelectedGameMode(nextMode);
+  window.location.href = `index.html?mode=${nextMode}`;
 }
 
 // PERMANENT_UPGRADES is defined in config.js (loaded before this script in index.html)

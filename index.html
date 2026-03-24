@@ -8,6 +8,12 @@
 </head>
 <body>
 
+  <!-- ── Mode switch ─────────────────────────────────────── -->
+  <div class="mode-switcher" role="tablist" aria-label="Game mode">
+    <button class="mode-btn" id="classic-mode-btn" data-mode="classic" type="button">Classic Mode</button>
+    <button class="mode-btn" id="drought-mode-btn" data-mode="drought" type="button">Drought Mode</button>
+  </div>
+
   <!-- ── Hamburger toggle ─────────────────────────────────── -->
   <button class="hamburger" id="hamburger" aria-label="Toggle store" aria-expanded="false">
     <span></span><span></span><span></span>
@@ -16,6 +22,42 @@
   <!-- ── Side-panel Store ─────────────────────────────────── -->
   <aside class="store-panel" id="store-panel" aria-hidden="true">
     <h2 class="store-title">💧 Store</h2>
+
+    <!-- Reincarnation controls -->
+    <section class="store-section reinc-section">
+      <h3 class="section-title">Reincarnation</h3>
+      <div class="reincarnation-info reinc-summary">
+        Reincarnations: <strong id="reinc-count">0</strong>
+        &nbsp;|&nbsp;
+        Reincarnation Points: <strong id="rp-count">0</strong>
+      </div>
+      <div class="progress-label">
+        <span>Reincarnation progress</span>
+        <span id="progress-text">0 / 1T Liters</span>
+      </div>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progress-bar" style="width:0%"></div>
+      </div>
+      <button class="reincarnate-btn store-reinc-btn locked" id="reincarnate-btn" onclick="doReincarnate()" disabled>
+        ⚡ Reincarnate!
+      </button>
+      <p class="reinc-locked-note" id="reinc-locked-note">
+        Earn 1 Reincarnation Point to unlock reincarnation.
+      </p>
+      <div class="reinc-confirm hidden" id="reinc-confirm">
+        <p class="reinc-warning">
+          Warning: reincarnating wipes all current progress, auto-clickers, and normal upgrades.
+          Reincarnation Points and permanent upgrades are kept.
+        </p>
+        <div class="reinc-confirm-actions">
+          <button class="reinc-confirm-btn accept" id="reinc-accept-btn" type="button" onclick="acceptReincarnation()">Accept</button>
+          <button class="reinc-confirm-btn decline" id="reinc-decline-btn" type="button" onclick="declineReincarnation()">Decline</button>
+        </div>
+      </div>
+      <a class="reinc-store-link hidden" id="reinc-store-link" href="reincarnation.html">
+        🌀 Open Reincarnation Store
+      </a>
+    </section>
 
     <!-- Upgrades (shown above auto-clickers per spec) -->
     <section class="store-section">
@@ -44,15 +86,13 @@
   <!-- ── Main game area ────────────────────────────────────── -->
   <main class="game-area" id="game-area">
 
-    <!-- Reincarnate button (visible once player has ≥1T litres) -->
-    <button class="reincarnate-btn hidden" id="reincarnate-btn" onclick="doReincarnate()">
-      ⚡ Reincarnate!
-    </button>
-
-    <!-- Link to reincarnation upgrade store (always visible after 1st reinc) -->
-    <a class="reinc-store-link hidden" id="reinc-store-link" href="reincarnation.html">
-      🌀 Reincarnation Store
-    </a>
+    <!-- Golden boost indicator -->
+    <div class="golden-boost hidden" id="golden-boost" aria-live="polite">
+      <div class="golden-boost-label" id="golden-boost-label">Golden Boost x7</div>
+      <div class="golden-boost-track">
+        <div class="golden-boost-fill" id="golden-boost-fill"></div>
+      </div>
+    </div>
 
     <!-- Water counter display -->
     <div class="water-display">
@@ -74,24 +114,6 @@
         <img id="well-img" class="well-img" src="well.svg" alt="Water well — click to collect water"
              width="240" height="260" draggable="false">
       </div>
-    </div>
-
-    <!-- ── Progress bar toward reincarnation (Improvement 3) ── -->
-    <div class="progress-section">
-      <div class="progress-label">
-        <span>Reincarnation progress</span>
-        <span id="progress-text">0 / 1T Liters</span>
-      </div>
-      <div class="progress-bar-outer">
-        <div class="progress-bar-inner" id="progress-bar" style="width:0%"></div>
-      </div>
-    </div>
-
-    <!-- Reincarnation stats -->
-    <div class="reincarnation-info">
-      Reincarnations: <strong id="reinc-count">0</strong>
-      &nbsp;|&nbsp;
-      Reincarnation Points: <strong id="rp-count">0</strong>
     </div>
 
   </main>

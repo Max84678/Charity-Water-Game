@@ -4,12 +4,15 @@
 
 // PERMANENT_UPGRADES is defined in config.js (loaded before this script in reincarnation.html)
 
+let currentMode = normalizeGameMode(getSelectedGameMode());
+
 // ─── Load state from localStorage ────────────────────────────────
 let state = null;
 
 function loadState() {
   try {
-    const raw = localStorage.getItem('cwgame_v1');
+    let raw = localStorage.getItem(getGameSaveKey(currentMode));
+    if (!raw && currentMode === 'classic') raw = localStorage.getItem(LEGACY_SAVE_KEY);
     if (raw) state = JSON.parse(raw);
   } catch(e) {
     console.warn('Could not load save:', e);
@@ -17,15 +20,21 @@ function loadState() {
   if (!state) {
     state = {
       water: 0, totalWater: 0, reincarnations: 0,
-      reincarnationPoints: 0, owned: {}, purchasedUpgrades: [], permanentUpgrades: []
+      reincarnationPoints: 0, reincarnationStoreViewedFor: 0,
+      owned: {}, purchasedUpgrades: [], permanentUpgrades: []
     };
   }
   if (!state.permanentUpgrades) state.permanentUpgrades   = [];
   if (!state.reincarnationPoints) state.reincarnationPoints = 0;
+  if (typeof state.reincarnationStoreViewedFor !== 'number') state.reincarnationStoreViewedFor = 0;
 }
 
 function saveState() {
-  localStorage.setItem('cwgame_v1', JSON.stringify(state));
+  const saveKey = getGameSaveKey(currentMode);
+  localStorage.setItem(saveKey, JSON.stringify(state));
+  if (currentMode === 'classic') {
+    localStorage.setItem(LEGACY_SAVE_KEY, JSON.stringify(state));
+  }
 }
 
 // ─── Number formatting ────────────────────────────────────────────
@@ -81,13 +90,38 @@ function buyPermanent(upgradeId) {
   renderGrid();
 }
 
+function syncStoreVisibility() {
+  const openForCurrentCycle = state.reincarnations > state.reincarnationStoreViewedFor;
+  const header = document.getElementById('reinc-header');
+  const grid = document.querySelector('.perma-upgrades-grid');
+  const rpBalance = document.querySelector('.rp-balance');
+  const stats = document.querySelector('.reinc-stats');
+  const returnBtn = document.querySelector('.return-btn');
+  const locked = document.getElementById('store-locked');
+
+  if (header) header.classList.toggle('hidden', !openForCurrentCycle);
+  if (locked) locked.classList.toggle('hidden', openForCurrentCycle);
+  if (grid) grid.classList.toggle('hidden', !openForCurrentCycle);
+  if (rpBalance) rpBalance.classList.toggle('hidden', !openForCurrentCycle);
+  if (stats) stats.classList.toggle('hidden', !openForCurrentCycle);
+  if (returnBtn) returnBtn.classList.remove('hidden');
+}
+
 // ─── Return to game ───────────────────────────────────────────────
 function returnToGame() {
+  state.reincarnationStoreViewedFor = state.reincarnations;
+  saveState();
   window.location.href = 'index.html';
 }
 
 // ─── Init ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  currentMode = setSelectedGameMode(getSelectedGameMode());
+  applyGameTheme(currentMode);
+  document.body.classList.toggle('mode-drought', currentMode === 'drought');
+  document.body.classList.toggle('mode-classic', currentMode === 'classic');
+
   loadState();
+  syncStoreVisibility();
   renderGrid();
 });

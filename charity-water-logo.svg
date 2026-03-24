@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 38" width="210" height="38">
-  <!-- Water-drop logo mark -->
-  <path d="M12 33 C12 33 2 23 2 15 C2 9 6.5 4 12 4 C17.5 4 22 9 22 15 C22 23 12 33 12 33Z" fill="#FFC907"/>
-  <circle cx="12" cy="15" r="5" fill="white" opacity="0.35"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 138" width="850" height="138" role="img" aria-label="charity: water">
+      <rect width="850" height="138" fill="none"/>
 
-  <!-- "charity:" in white bold -->
-  <text x="28" y="28"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="20"
-        font-weight="700"
-        fill="white"
-        letter-spacing="-0.5">charity:</text>
+      <!-- Logo mark -->
+      <g transform="translate(24 18)">
+            <rect x="0" y="0" width="68" height="92" rx="8" fill="#F5D21F"/>
+            <path d="M20 14h28c3 0 5 2 5 5v5c0 2-1 4-3 5l-14 9v9l12 7c2 1 3 3 3 5v5c0 3-2 5-5 5H20c-3 0-5-2-5-5v-5c0-2 1-4 3-5l14-9v-9l-12-7c-2-1-3-3-3-5v-5c0-3 2-5 5-5z" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M18 23h32" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+            <path d="M18 70h32" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+      </g>
 
-  <!-- " water" in charity:water yellow -->
-  <text x="130" y="28"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="20"
-        font-weight="400"
-        fill="#FFC907"
-        letter-spacing="-0.5"> water</text>
+      <!-- Wordmark -->
+      <text x="116" y="95"
+                        font-family="Georgia, 'Times New Roman', serif"
+                        font-size="78"
+                        font-weight="400"
+                        fill="#1C1C1C"
+                        letter-spacing="3">charity: water</text>
 </svg>

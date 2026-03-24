@@ -14,6 +14,17 @@ Open `index.html` in any modern web browser — no server or installation requir
 - Purchase auto-clickers individually or in bulk of **×10, ×100, ×1 000, ×10 000** (max 10 000 per tier).
 - When you reach **1 trillion liters** in a single cycle you can **Reincarnate** — resetting your progress in exchange for **Reincarnation Points**.
 - Spend RP in the **Reincarnation Store** on permanent upgrades that persist across all future cycles.
+- Watch for the **golden raindrop** that appears every five minutes. It can grant **+777 L** or a short **x7 / x777 boost**.
+
+### Game modes
+
+- **Classic Mode** uses the standard charity: water sky-blue palette.
+- **Drought Mode** uses a gold-heavy theme, a black footer, and harder progression:
+	- Higher costs
+	- Lower water production
+	- The charity: water footer uses the new logo treatment in the darker theme
+
+Use the mode switch at the top of the main screen to swap between them.
 
 ### Three improvements added
 
