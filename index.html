@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water for All — A Charity: Water Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ── Hamburger toggle ─────────────────────────────────── -->
+  <button class="hamburger" id="hamburger" aria-label="Toggle store" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- ── Side-panel Store ─────────────────────────────────── -->
+  <aside class="store-panel" id="store-panel" aria-hidden="true">
+    <h2 class="store-title">💧 Store</h2>
+
+    <!-- Upgrades (shown above auto-clickers per spec) -->
+    <section class="store-section">
+      <h3 class="section-title">Upgrades</h3>
+      <div id="upgrades-list">
+        <p class="no-upgrades">No upgrades available yet.</p>
+      </div>
+    </section>
+
+    <!-- Auto-clickers -->
+    <section class="store-section">
+      <h3 class="section-title">Auto Clickers</h3>
+      <!-- Bulk-buy controls -->
+      <div class="bulk-controls">
+        <span>Buy:</span>
+        <button class="bulk-btn active" data-bulk="1">×1</button>
+        <button class="bulk-btn"        data-bulk="10">×10</button>
+        <button class="bulk-btn"        data-bulk="100">×100</button>
+        <button class="bulk-btn"        data-bulk="1000">×1K</button>
+        <button class="bulk-btn"        data-bulk="10000">×10K</button>
+      </div>
+      <div id="autoclickers-list"></div>
+    </section>
+  </aside>
+
+  <!-- ── Main game area ────────────────────────────────────── -->
+  <main class="game-area" id="game-area">
+
+    <!-- Reincarnate button (visible once player has ≥1T litres) -->
+    <button class="reincarnate-btn hidden" id="reincarnate-btn" onclick="doReincarnate()">
+      ⚡ Reincarnate!
+    </button>
+
+    <!-- Link to reincarnation upgrade store (always visible after 1st reinc) -->
+    <a class="reinc-store-link hidden" id="reinc-store-link" href="reincarnation.html">
+      🌀 Reincarnation Store
+    </a>
+
+    <!-- Water counter display -->
+    <div class="water-display">
+      <div class="water-amount">
+        <span id="water-count">0.0</span>
+        <span class="unit">Liters</span>
+      </div>
+      <div class="water-rate">
+        <span class="highlight" id="water-rate">0.0</span> L/s
+        &nbsp;|&nbsp;
+        <span class="highlight" id="water-per-click">1.0</span> L/click
+      </div>
+    </div>
+
+    <!-- Clickable water well -->
+    <div class="well-container">
+      <div class="well-wrapper" id="well-wrapper" role="button"
+           aria-label="Click to collect water" tabindex="0">
+        <img id="well-img" class="well-img" src="well.svg" alt="Water well — click to collect water"
+             width="240" height="260" draggable="false">
+      </div>
+    </div>
+
+    <!-- ── Progress bar toward reincarnation (Improvement 3) ── -->
+    <div class="progress-section">
+      <div class="progress-label">
+        <span>Reincarnation progress</span>
+        <span id="progress-text">0 / 1T Liters</span>
+      </div>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Reincarnation stats -->
+    <div class="reincarnation-info">
+      Reincarnations: <strong id="reinc-count">0</strong>
+      &nbsp;|&nbsp;
+      Reincarnation Points: <strong id="rp-count">0</strong>
+    </div>
+
+  </main>
+
+  <!-- ── Milestone popup (Improvement 2) ──────────────────── -->
+  <div class="milestone-popup hidden" id="milestone-popup" role="alert">
+    <div class="milestone-icon" id="milestone-icon">💧</div>
+    <div class="milestone-message" id="milestone-message"></div>
+    <button class="milestone-close" id="milestone-close" aria-label="Dismiss">×</button>
+  </div>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="footer">
+    <a href="https://www.charitywater.org" target="_blank" rel="noopener noreferrer"
+       aria-label="Visit charity: water website">
+      <img class="cw-logo" src="charity-water-logo.svg" alt="charity: water" width="210" height="38">
+    </a>
+    <p class="footer-tagline">
+      Every drop counts.
+      <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener noreferrer">
+        Donate to bring real clean water
+      </a>
+      to people in need.
+    </p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

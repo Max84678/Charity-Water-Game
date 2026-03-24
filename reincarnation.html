@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reincarnation Store — Charity: Water Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="reinc-page">
+
+    <!-- Header -->
+    <header class="reinc-header">
+      <h1 class="reinc-title">⚡ Reincarnation Store</h1>
+      <p class="reinc-subtitle">
+        Spend your Reincarnation Points on permanent upgrades that survive every cycle.
+      </p>
+    </header>
+
+    <!-- RP balance -->
+    <div class="rp-balance">
+      <div class="rp-balance-label">Available Reincarnation Points</div>
+      <div class="rp-balance-value" id="rp-display">0</div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="reinc-stats">
+      <span>Reincarnations: <strong id="stat-reinc">0</strong></span>
+      <span>Best cycle water: <strong id="stat-best">—</strong></span>
+    </div>
+
+    <!-- Permanent upgrades grid -->
+    <div class="perma-upgrades-grid" id="perma-grid">
+      <!-- Populated by reincarnation.js -->
+    </div>
+
+    <!-- Return to game -->
+    <button class="return-btn" onclick="returnToGame()">
+      💧 Return to Game
+    </button>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <a href="https://www.charitywater.org" target="_blank" rel="noopener noreferrer"
+       aria-label="Visit charity: water website">
+      <img class="cw-logo" src="charity-water-logo.svg" alt="charity: water" width="210" height="38">
+    </a>
+    <p class="footer-tagline">
+      Every drop counts.
+      <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener noreferrer">
+        Donate to bring real clean water
+      </a>
+      to people in need.
+    </p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="reincarnation.js"></script>
+</body>
+</html>
