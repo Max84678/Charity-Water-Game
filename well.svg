@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260" width="240" height="260">
+  <!-- Drop shadow -->
+  <ellipse cx="120" cy="248" rx="75" ry="12" fill="#3A7A9A" opacity="0.3"/>
+
+  <!-- Well wall body -->
+  <rect x="50" y="110" width="140" height="120" rx="5" fill="#C8A97A"/>
+
+  <!-- Stone row horizontal lines -->
+  <rect x="50" y="128" width="140" height="3" fill="#A8895A" opacity="0.55"/>
+  <rect x="50" y="148" width="140" height="3" fill="#A8895A" opacity="0.55"/>
+  <rect x="50" y="168" width="140" height="3" fill="#A8895A" opacity="0.55"/>
+  <rect x="50" y="188" width="140" height="3" fill="#A8895A" opacity="0.55"/>
+  <rect x="50" y="208" width="140" height="3" fill="#A8895A" opacity="0.55"/>
+
+  <!-- Stone vertical lines -->
+  <line x1="80"  y1="110" x2="80"  y2="230" stroke="#A8895A" stroke-width="1.5" opacity="0.45"/>
+  <line x1="110" y1="110" x2="110" y2="230" stroke="#A8895A" stroke-width="1.5" opacity="0.45"/>
+  <line x1="140" y1="110" x2="140" y2="230" stroke="#A8895A" stroke-width="1.5" opacity="0.45"/>
+  <line x1="170" y1="110" x2="170" y2="230" stroke="#A8895A" stroke-width="1.5" opacity="0.45"/>
+
+  <!-- Well top rim -->
+  <ellipse cx="120" cy="110" rx="70" ry="22" fill="#B89A6A"/>
+
+  <!-- Water surface inside well -->
+  <ellipse cx="120" cy="108" rx="65" ry="18" fill="#3A9CCC"/>
+  <ellipse cx="120" cy="107" rx="60" ry="14" fill="#5ABCE8"/>
+  <ellipse cx="103" cy="104" rx="22" ry="7" fill="white" opacity="0.2" transform="rotate(-10 103 104)"/>
+
+  <!-- Left support post -->
+  <rect x="43" y="32" width="16" height="88" rx="5" fill="#7A5028"/>
+  <!-- Right support post -->
+  <rect x="181" y="32" width="16" height="88" rx="5" fill="#7A5028"/>
+
+  <!-- Horizontal crossbeam -->
+  <rect x="36" y="28" width="168" height="18" rx="7" fill="#9A6A38"/>
+  <rect x="36" y="28" width="168" height="5"  rx="4" fill="rgba(255,255,255,0.18)"/>
+
+  <!-- Winding axle -->
+  <circle cx="120" cy="37" r="7" fill="#7A5028"/>
+  <circle cx="120" cy="37" r="4" fill="#5A3018"/>
+  <!-- Winding handle arm -->
+  <rect x="130" y="33" width="24" height="8" rx="4" fill="#9A6A38"/>
+  <circle cx="154" cy="37" r="5" fill="#7A5028"/>
+
+  <!-- Rope with twist detail -->
+  <line x1="120" y1="37" x2="120" y2="88" stroke="#D4AA70" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="119" y1="44" x2="121" y2="52" stroke="#C49A60" stroke-width="1.5"/>
+  <line x1="121" y1="52" x2="119" y2="60" stroke="#C49A60" stroke-width="1.5"/>
+  <line x1="119" y1="60" x2="121" y2="68" stroke="#C49A60" stroke-width="1.5"/>
+  <line x1="121" y1="68" x2="119" y2="76" stroke="#C49A60" stroke-width="1.5"/>
+  <line x1="119" y1="76" x2="121" y2="84" stroke="#C49A60" stroke-width="1.5"/>
+
+  <!-- Bucket handle arc -->
+  <path d="M104 88 Q104 78 120 78 Q136 78 136 88" fill="none" stroke="#5A7A9A" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Bucket body -->
+  <path d="M102 88 L106 112 Q120 118 134 112 L138 88 Z" fill="#4A6A8A"/>
+  <ellipse cx="120" cy="88" rx="18" ry="5.5" fill="#5A7A9A"/>
+
+  <!-- Water in bucket -->
+  <ellipse cx="120" cy="109" rx="12" ry="4.5" fill="#7BCDE8"/>
+  <ellipse cx="116" cy="108" rx="5"  ry="2"   fill="white" opacity="0.3"/>
+</svg>
