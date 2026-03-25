@@ -749,6 +749,8 @@ function checkReincarnateBtn() {
   const reincBtn = document.getElementById('reincarnate-btn');
   const lockedNote = document.getElementById('reinc-locked-note');
 
+  if (!reincBtn || !lockedNote) return;
+
   reincBtn.classList.toggle('locked', !canReincarnate);
   reincBtn.disabled = !canReincarnate;
   lockedNote.classList.toggle('hidden', canReincarnate);
@@ -758,6 +760,7 @@ function checkReincarnateBtn() {
 
 function setReincarnationWarningVisible(isVisible) {
   const confirmBox = document.getElementById('reinc-confirm');
+  if (!confirmBox) return;
   confirmBox.classList.toggle('hidden', !isVisible);
 }
 
