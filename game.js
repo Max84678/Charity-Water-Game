@@ -299,6 +299,9 @@ let state       = deepClone(DEFAULT_STATE);
 let bulkAmount  = 1;
 let storeOpen   = false;
 let lastUpdate  = Date.now();
+let reincBtnEl = null;
+let reincLockedNoteEl = null;
+let reincConfirmEl = null;
 
 function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
 
@@ -746,8 +749,8 @@ function onWellClick(e) {
 // ─── Reincarnation ────────────────────────────────────────────────
 function checkReincarnateBtn() {
   const canReincarnate = state.reincarnationReady === true;
-  const reincBtn = document.getElementById('reincarnate-btn');
-  const lockedNote = document.getElementById('reinc-locked-note');
+  const reincBtn = reincBtnEl || (reincBtnEl = document.getElementById('reincarnate-btn'));
+  const lockedNote = reincLockedNoteEl || (reincLockedNoteEl = document.getElementById('reinc-locked-note'));
 
   if (!reincBtn || !lockedNote) return;
 
@@ -759,7 +762,7 @@ function checkReincarnateBtn() {
 }
 
 function setReincarnationWarningVisible(isVisible) {
-  const confirmBox = document.getElementById('reinc-confirm');
+  const confirmBox = reincConfirmEl || (reincConfirmEl = document.getElementById('reinc-confirm'));
   if (!confirmBox) return;
   confirmBox.classList.toggle('hidden', !isVisible);
 }
@@ -915,6 +918,10 @@ function init() {
   applyGameTheme(currentMode);
   document.body.classList.toggle('mode-drought', currentMode === 'drought');
   document.body.classList.toggle('mode-classic', currentMode === 'classic');
+
+  reincBtnEl = document.getElementById('reincarnate-btn');
+  reincLockedNoteEl = document.getElementById('reinc-locked-note');
+  reincConfirmEl = document.getElementById('reinc-confirm');
 
   loadGame();
 
