@@ -38,25 +38,22 @@
       <div class="progress-bar-outer">
         <div class="progress-bar-inner" id="progress-bar" style="width:0%"></div>
       </div>
-      <button class="reincarnate-btn store-reinc-btn locked" id="reincarnate-btn" onclick="doReincarnate()" disabled>
+      <button class="reincarnate-btn store-reinc-btn locked" id="reincarnate-btn" onclick="openReincarnationWarning()" disabled>
         ⚡ Reincarnate!
       </button>
       <p class="reinc-locked-note" id="reinc-locked-note">
-        Earn 1 Reincarnation Point to unlock reincarnation.
+        Reach 1 trillion liters to unlock reincarnation.
       </p>
       <div class="reinc-confirm hidden" id="reinc-confirm">
         <p class="reinc-warning">
-          Warning: reincarnating wipes all current progress, auto-clickers, and normal upgrades.
-          Reincarnation Points and permanent upgrades are kept.
+          Warning: proceeding will wipe all current progress, auto-clickers, and normal upgrades.
+          You will be taken to the Reincarnation Store after the reset.
         </p>
         <div class="reinc-confirm-actions">
-          <button class="reinc-confirm-btn accept" id="reinc-accept-btn" type="button" onclick="acceptReincarnation()">Accept</button>
+          <button class="reinc-confirm-btn accept" id="reinc-accept-btn" type="button" onclick="acceptReincarnation()">Proceed</button>
           <button class="reinc-confirm-btn decline" id="reinc-decline-btn" type="button" onclick="declineReincarnation()">Decline</button>
         </div>
       </div>
-      <a class="reinc-store-link hidden" id="reinc-store-link" href="reincarnation.html">
-        🌀 Open Reincarnation Store
-      </a>
     </section>
 
     <!-- Upgrades (shown above auto-clickers per spec) -->

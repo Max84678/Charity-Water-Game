@@ -32,7 +32,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  height: 100%;
+  min-height: 100dvh;
   font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
   background: var(--bg);
   color: var(--text);
@@ -475,7 +475,7 @@ body.mode-drought .return-btn:focus-visible {
 }
 
 /* ── Main game layout ────────────────────────────────────── */
-body { display: flex; flex-direction: column; min-height: 100vh; }
+body { display: flex; flex-direction: column; min-height: 100dvh; }
 
 main.game-area {
   flex: 1;
@@ -594,6 +594,10 @@ main.game-area {
   min-width: 3px;
   position: relative;
 }
+.progress-bar-inner.solid {
+  background: linear-gradient(90deg, #5DBAE6 0%, #5DBAE6 100%);
+  animation: none;
+}
 /* Wave shimmer overlay */
 .progress-bar-inner::after {
   content: '';
@@ -603,6 +607,10 @@ main.game-area {
   background-size: 200% 100%;
   animation: wave-shimmer 1.6s linear infinite;
   border-radius: inherit;
+}
+.progress-bar-inner.solid::after {
+  background: rgba(255,255,255,0.12);
+  animation: none;
 }
 
 .reincarnation-info {
@@ -671,6 +679,7 @@ main.game-area {
   align-items: center;
   gap: 7px;
   border-top: 1px solid var(--footer-border);
+  margin-top: auto;
 }
 .footer a   { display: inline-block; text-decoration: none; }
 .cw-logo    {
@@ -690,12 +699,17 @@ main.game-area {
 
 /* ── Reincarnation page ──────────────────────────────────── */
 .reinc-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 40px 16px 60px;
+  flex: 1;
+}
+.reinc-return-btn {
+  align-self: center;
+  margin-bottom: 18px;
 }
 .reinc-header { text-align: center; margin-bottom: 28px; }
 .reinc-title  { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
@@ -714,12 +728,74 @@ main.game-area {
 
 .perma-upgrades-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 18px;
   width: 100%;
-  max-width: 860px;
+  max-width: 1120px;
   margin-bottom: 30px;
 }
+.research-tree {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  width: 100%;
+}
+.research-branch {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 16px 14px 18px;
+}
+.research-branch-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.research-branch-icon {
+  font-size: 2rem;
+  min-width: 34px;
+}
+.research-branch-header h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.research-branch-header p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.research-branch-track {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 18px;
+}
+.research-branch-track::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.22), transparent);
+}
+.research-node {
+  position: relative;
+}
+.research-node::before {
+  content: '';
+  position: absolute;
+  left: -13px;
+  top: 28px;
+  width: 11px;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.8;
+}
+.research-node.locked { opacity: 0.72; }
 .perma-upgrade-card {
   background: var(--store-item-bg);
   border-radius: 12px;
@@ -738,6 +814,11 @@ main.game-area {
 .perma-card-name { font-size: 1.05rem; font-weight: 700; }
 .perma-card-desc { font-size: 0.82rem; color: var(--text-muted); flex: 1; line-height: 1.4; }
 .perma-card-cost { font-size: 0.88rem; color: var(--accent); font-weight: 700; }
+.research-prereq {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
 
 .perma-card-btn {
   padding: 9px 0;
@@ -821,4 +902,6 @@ main.game-area {
   :root                { --store-width: min(100vw, 310px); }
   .reincarnate-btn     { font-size: 0.82rem; padding: 8px 12px; top: 10px; right: 10px; }
   .reinc-store-link    { top: 54px; right: 10px; }
+  .research-tree       { grid-template-columns: 1fr; }
+  .reinc-return-btn    { align-self: center; }
 }
