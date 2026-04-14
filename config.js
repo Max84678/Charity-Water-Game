@@ -124,7 +124,37 @@ function applyGameTheme(mode = getSelectedGameMode()) {
 
 // Permanent upgrades survive every reincarnation cycle.
 // Purchased with Reincarnation Points (RP) on reincarnation.html.
-const PERMANENT_UPGRADES = [
+function inflatePermanentUpgradeCosts(upgrades) {
+  const depthByBranch = new Map();
+  const costMultipliers = [
+    1,
+    10,
+    100,
+    1_000,
+    100_000,
+    10_000_000,
+    1_000_000_000,
+    1_000_000_000_000,
+    1_000_000_000_000_000,
+    1_000_000_000_000_000_000,
+    1_000_000_000_000_000_000_000,
+    1_000_000_000_000_000_000_000_000,
+    1_000_000_000_000_000_000_000_000_000,
+  ];
+
+  return upgrades.map(upgrade => {
+    const depth = depthByBranch.get(upgrade.branch) || 0;
+    depthByBranch.set(upgrade.branch, depth + 1);
+    const multiplier = costMultipliers[Math.min(depth, costMultipliers.length - 1)];
+
+    return {
+      ...upgrade,
+      cost: Math.max(1, Math.round(upgrade.cost * multiplier)),
+    };
+  });
+}
+
+const PERMANENT_UPGRADES_RAW = [
   { id:'pu1',  branch:'water', name:'Reservoir Memory', icon:'🏞️',  desc:'Start each new cycle with 1,000 L already collected.',                    cost:1,  effect:'startWater', value:1000,    requires:[]       },
   { id:'pu5',  branch:'water', name:'Deep Reservoir',   icon:'⛰️',  desc:'Start each new cycle with 100,000 L already collected.',                  cost:8,  effect:'startWater', value:100000,  requires:['pu1']  },
   { id:'pu8',  branch:'water', name:'Undying River',    icon:'🏔️',  desc:'Start each new cycle with 10,000,000 L already collected.',               cost:25, effect:'startWater', value:1e7,     requires:['pu5']  },
@@ -168,3 +198,5 @@ const PERMANENT_UPGRADES = [
   { id:'pu37', branch:'auto',  name:'Weather Halo',     icon:'☁️',  desc:'All auto-clickers permanently run at 100,000× their normal speed.',        cost:3000000, effect:'autoMult',   value:100000,  requires:['pu34'] },
   { id:'pu40', branch:'auto',  name:'Eternal Current',  icon:'♾️',  desc:'All auto-clickers permanently run at 500,000× their normal speed.',        cost:15000000, effect:'autoMult',   value:500000,  requires:['pu37'] },
 ];
+
+const PERMANENT_UPGRADES = inflatePermanentUpgradeCosts(PERMANENT_UPGRADES_RAW);

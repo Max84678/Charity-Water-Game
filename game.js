@@ -12,8 +12,8 @@ const CLICKER_TYPES = [
   { id:'handpump',  name:'Hand Pump',        emoji:'💧', desc:'A simple mechanical hand pump.',           baseCost:100,     baseLps:1.5   },
   { id:'village',   name:'Village Well',     emoji:'🏘️', desc:'A shared well serving the community.',    baseCost:1100,    baseLps:15    },
   { id:'solar',     name:'Solar Pump',       emoji:'☀️', desc:'Solar-powered water extraction.',         baseCost:12000,   baseLps:160   },
-  { id:'borehole',  name:'Borehole',         emoji:'⛏️', desc:'Deep drilled underground aquifer.',       baseCost:130000,  baseLps:10000,    droughtLps:50    },
-  { id:'pipeline',  name:'Water Pipeline',   emoji:'🔩', desc:'A pipe network across many villages.',    baseCost:1400000, baseLps:100000,   droughtLps:100   },
+  { id:'borehole',  name:'Borehole',         emoji:'⛏️', desc:'Deep drilled underground aquifer.',       baseCost:130000,  baseLps:100000,   droughtLps:100   },
+  { id:'pipeline',  name:'Water Pipeline',   emoji:'🔩', desc:'A pipe network across many villages.',    baseCost:1400000, baseLps:10000,    droughtLps:50    },
   { id:'treatment', name:'Treatment Plant',  emoji:'🏭', desc:'Purifies water for an entire region.',    baseCost:2e7,     baseLps:1000000,  droughtLps:1000  },
   { id:'grid',      name:'National Grid',    emoji:'🌐', desc:'Country-wide clean water infrastructure.',baseCost:3.3e8,   baseLps:10000000, droughtLps:10000 },
   { id:'desal',     name:'Desalination Plant', emoji:'🌊', desc:'Industrial desalination turns seawater into supply.', baseCost:5e9,   baseLps:100000000,  droughtLps:100000  },
@@ -28,7 +28,7 @@ const CLICKER_TYPES = [
   { id:'seeding',   name:'Cloud Seeding Fleet', emoji:'✈️', desc:'A fleet of aircraft seeds rain on demand.',         baseCost:1.5e20, baseLps:100000000000000000, droughtLps:100000000000000 },
   { id:'lunar',     name:'Lunar Reservoir',    emoji:'🌙', desc:'Stores and releases water from orbital stations.',  baseCost:2e21,   baseLps:1000000000000000000, droughtLps:1000000000000000 },
   { id:'tidal',     name:'Tidal Engine',       emoji:'🌊', desc:'Uses planetary tides to move immense volumes.',     baseCost:3e22,   baseLps:10000000000000000000, droughtLps:10000000000000000 },
-  { id:'weir',      name:'Planetary Weir',     emoji:'🏞️', desc:'A continental spillway system for global flow.',   baseCost:5e23,   baseLps:100000000000000000000, droughtLps:100000000000000000 },
+  { id:'weir',      name:'Planetary Weir',     emoji:'🏞️', desc:'A continental spillway system for global flow.',   baseCost:5e23,   baseLps:100000000000000000000, droughtLps:100000000000000000000 },
   { id:'monsoon',   name:'Global Monsoon',     emoji:'🌧️', desc:'Creates synchronized monsoon cycles worldwide.',   baseCost:7e24,   baseLps:1000000000000000000000, droughtLps:1000000000000000000 },
   { id:'solarwind', name:'Solar Wind Harvester', emoji:'☀️', desc:'Harnesses solar wind for weather-scale circulation.', baseCost:1e26,  baseLps:10000000000000000000000, droughtLps:10000000000000000000 },
   { id:'fog',       name:'Orbital Fog Net',    emoji:'🕸️', desc:'Collects water from drifting fog bands in orbit.',   baseCost:1.5e27, baseLps:100000000000000000000000, droughtLps:100000000000000000000 },
@@ -374,7 +374,10 @@ function fmt(n) {
   if (tier <= suffixes.length) {
     const scaled = value / Math.pow(10, tier * 3);
     const decimals = scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2;
-    const cleaned = scaled.toFixed(decimals).replace(/\.0+$|0+$/,'').replace(/\.$/, '');
+    const raw = scaled.toFixed(decimals);
+    const cleaned = decimals > 0
+      ? raw.replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '').replace(/\.$/, '')
+      : raw;
     return sign + cleaned + suffixes[tier - 1];
   }
 

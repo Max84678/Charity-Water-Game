@@ -58,7 +58,10 @@ function fmt(n) {
   if (tier <= suffixes.length) {
     const scaled = value / Math.pow(10, tier * 3);
     const decimals = scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2;
-    const cleaned = scaled.toFixed(decimals).replace(/\.0+$|0+$/,'').replace(/\.$/, '');
+    const raw = scaled.toFixed(decimals);
+    const cleaned = decimals > 0
+      ? raw.replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '').replace(/\.$/, '')
+      : raw;
     return sign + cleaned + suffixes[tier - 1];
   }
 
@@ -105,7 +108,7 @@ function buildResearchTree() {
           <div class="perma-card-desc">${p.desc}</div>
           <div class="research-prereq">${prereqText}</div>
           <div class="perma-card-cost">
-            ${owned ? '✅ Purchased' : p.cost + ' RP'}
+            ${owned ? '✅ Purchased' : fmt(p.cost) + ' RP'}
           </div>
           <button class="perma-card-btn"
                   onclick="buyPermanent('${p.id}')"
